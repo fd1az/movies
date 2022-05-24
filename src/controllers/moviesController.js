@@ -2,8 +2,13 @@ const db = require("../database/models");
 
 const moviesController = {
   list: async (req, res) => {
-    const movies = await db.Movie.findAll();
+    const movies = await db.Movie.findAll({ where: { deleted: 0 } });
     res.render("moviesList", { movies });
+  },
+  detail: (req, res) => {
+    db.Movie.findByPk(req.params.id).then((movie) => {
+      res.render("moviesDetail", { movie });
+    });
   },
   new: (req, res) => {
     db.Movie.findAll({
@@ -23,6 +28,58 @@ const moviesController = {
     }).then((movies) => {
       res.render("recommendedMovies", { movies });
     });
+  },
+  add: (req, res) => {
+    res.render("moviesAdd");
+  },
+  create: (req, res) => {
+    const { title, rating, awards, release_date, length } = req.body;
+    db.Movie.create({
+      title,
+      rating,
+      awards,
+      release_date,
+      length,
+    })
+      .then(() => {
+        return res.redirect("/movies");
+      })
+      .catch((e) => {
+        console.log(e);
+        console.log("Changos!");
+      });
+  },
+  edit: (req, res) => {
+    db.Movie.findByPk(req.params.id).then((movie) => {
+      res.render("moviesEdit", { Movie: movie });
+    });
+  },
+  update: (req, res) => {
+    const id = req.params.id;
+    const { title, rating, awards, release_date, length } = req.body;
+    db.Movie.update(
+      { title, rating, awards, release_date, length },
+      { where: { id } }
+    ).then(() => {
+      res.redirect("/movies");
+    });
+  },
+  delete: (req, res) => {
+    const id = req.params.id;
+    db.Movie.findByPk(id).then((movie) => {
+      res.render("moviesDelete", { Movie: movie });
+    });
+  },
+  destroy: (req, res) => {
+    const id = req.params.id;
+
+    db.Movie.update({ deleted: 1 }, { where: { id } })
+      .then(() => {
+        res.redirect("/movies");
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   },
 };
 

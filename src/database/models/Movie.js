@@ -21,6 +21,9 @@ module.exports = (sequelize, dataTypes) => {
     length: {
       type: dataTypes.INTEGER,
     },
+    deleted: {
+      type: dataTypes.INTEGER,
+    },
   };
 
   let config = {
