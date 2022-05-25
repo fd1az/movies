@@ -15,8 +15,22 @@
     <br>
     <p>RATING: <%= movie.rating %> </p>
     <p>AWARDS: <%= movie.awards %> </p>
-    <p>LENGTH: <%= movie.length + ' min'%> </p>
+    <p>LENGTH: <%= movie.length + ' min'%> </p> 
     <p>RELEASE DATE: <%= movie.release_date %> </p>
+    <br>
 
+    <ul class="lista">
+        <% for( let i = 0; i < movie.actors.length; i++ ) { %>
+        <li>
+            <p><%=  movie.actors[i].first_name %> - <%=  movie.actors[i].last_name %></a>
+        </li>
+        <% } %>
+
+    </ul>
+    <section>
+        <a class="botonModificar" href="/movies/edit/<%= movie.id %>">Modificar</a>
+        <a class="botonBorrar" href="/movies/delete/<%= movie.id %>">Borrar</a>
+        <a class="botonVolver" href="/movies">Listado de Películas</a>
+    </section>
 </body>
 </html>

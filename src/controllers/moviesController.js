@@ -5,8 +5,10 @@ const moviesController = {
     const movies = await db.Movie.findAll({ where: { deleted: 0 } });
     res.render("moviesList", { movies });
   },
-  detail: (req, res) => {
-    db.Movie.findByPk(req.params.id).then((movie) => {
+  detail: async (req, res) => {
+    db.Movie.findByPk(req.params.id, {
+      include: ["actors"],
+    }).then((movie) => {
       res.render("moviesDetail", { movie });
     });
   },
@@ -29,17 +31,19 @@ const moviesController = {
       res.render("recommendedMovies", { movies });
     });
   },
-  add: (req, res) => {
-    res.render("moviesAdd");
+  add: async (req, res) => {
+    const allGenres = await db.Genre.findAll();
+    res.render("moviesAdd", { allGenres });
   },
   create: (req, res) => {
-    const { title, rating, awards, release_date, length } = req.body;
+    const { title, rating, awards, release_date, length, genre_id } = req.body;
     db.Movie.create({
       title,
       rating,
       awards,
       release_date,
       length,
+      genre_id,
     })
       .then(() => {
         return res.redirect("/movies");
@@ -50,9 +54,16 @@ const moviesController = {
       });
   },
   edit: (req, res) => {
-    db.Movie.findByPk(req.params.id).then((movie) => {
-      res.render("moviesEdit", { Movie: movie });
-    });
+    const Movie = db.Movie.findByPk(req.params.id, { include: ["genre"] });
+    const allGenres = db.Genre.findAll();
+
+    Promise.all([Movie, allGenres])
+      .then(([Movie, allGenres]) => {
+        res.render("moviesEdit", { Movie, allGenres });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   },
   update: (req, res) => {
     const id = req.params.id;
