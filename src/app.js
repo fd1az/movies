@@ -1,10 +1,14 @@
-const express = require("express");
-const path = require("path");
+import express from "express";
+import path from "path";
+import { __dirname, __filename } from "./util/dirname.js";
+import indexRouter from "./routes/index.js";
 
-const indexRouter = require("./routes/index");
+import moviesRoutes from "./routes/moviesRoutes.js";
+import genresRoutes from "./routes/genresRoutes.js";
 
-const moviesRoutes = require("./routes/moviesRoutes");
-const genresRoutes = require("./routes/genresRoutes");
+import apiGenresRouter from "./routes/api/genres.js";
+import apiMoviesRouter from "./routes/api/movies.js";
+
 const app = express();
 
 // view engine setup
@@ -18,5 +22,8 @@ app.use(express.json());
 app.use("/", indexRouter);
 app.use(moviesRoutes);
 app.use(genresRoutes);
+
+app.use("/api/genres", apiGenresRouter);
+app.use("/api/movies", apiMoviesRouter);
 
 app.listen("3001", () => console.log("Servidor corriendo en el puerto 3001"));

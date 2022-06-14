@@ -1,4 +1,4 @@
-module.exports = (sequelize, dataTypes) => {
+export default (sequelize, dataTypes) => {
   let alias = "Genre";
   let cols = {
     id: {

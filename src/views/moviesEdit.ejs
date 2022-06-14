@@ -34,6 +34,14 @@
                 </select>
             </p>
 
+            <p>
+                <select name="actors" id="" required multiple>
+                    <% allActors.forEach(actor => { %>
+                    <option value="<%= actor.id %>" <% if (Movie.actor_id == actor.id) { %><%= 'selected' %><% }; %>><%= actor.first_name +" - " +actor.last_name%></option>
+                    <% }); %>
+                </select>
+            </p>
+
     <!--
             <label for="genre_id">Genre ID </label>
             <p><input type="number" name="genre_id" id="" value="<%= Movie.genre_id %>"></p>

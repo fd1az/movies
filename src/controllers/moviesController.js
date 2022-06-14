@@ -1,4 +1,5 @@
-const db = require("../database/models");
+import db from "../database/models/index.js";
+import fetch from "node-fetch";
 
 const moviesController = {
   list: async (req, res) => {
@@ -54,26 +55,49 @@ const moviesController = {
       });
   },
   edit: (req, res) => {
-    const Movie = db.Movie.findByPk(req.params.id, { include: ["genre"] });
+    const Movie = db.Movie.findByPk(req.params.id, {
+      include: ["genre", "actors"],
+    });
     const allGenres = db.Genre.findAll();
+    const allActors = db.Actor.findAll();
 
-    Promise.all([Movie, allGenres])
-      .then(([Movie, allGenres]) => {
-        res.render("moviesEdit", { Movie, allGenres });
+    Promise.all([Movie, allGenres, allActors])
+      .then(([Movie, allGenres, allActors]) => {
+        res.render("moviesEdit", { Movie, allGenres, allActors });
       })
       .catch((e) => {
         console.log(e);
       });
   },
-  update: (req, res) => {
-    const id = req.params.id;
-    const { title, rating, awards, release_date, length } = req.body;
-    db.Movie.update(
-      { title, rating, awards, release_date, length },
-      { where: { id } }
-    ).then(() => {
+  update: async (req, res) => {
+    try {
+      const moviId = req.params.id;
+      const { title, rating, awards, release_date, length, actors } = req.body;
+
+      const actorsArrayOb =
+        actors.length > 1
+          ? actors.map((idStr) => {
+              return { actor_id: Number(idStr), movie_id: moviId };
+            })
+          : [{ actor_id: Number(actors), movie_id: moviId }];
+
+      await db.ActorMovie.destroy({
+        where: {
+          movie_id: moviId,
+        },
+      });
+
+      await db.ActorMovie.bulkCreate(actorsArrayOb);
+
+      await db.Movie.update(
+        { title, rating, awards, release_date, length },
+        { where: { id: moviId } }
+      );
+
       res.redirect("/movies");
-    });
+    } catch (error) {
+      console.log(error);
+    }
   },
   delete: (req, res) => {
     const id = req.params.id;
@@ -92,6 +116,13 @@ const moviesController = {
         console.log(e);
       });
   },
+  async search(req, res) {
+    const rest = await fetch(
+      "http://www.omdbapi.com/?apikey=d4e35e92&t=Doctor+Strange"
+    );
+    const movie = await rest.json();
+    res.render("moviesDetailOmdb", { movie });
+  },
 };
 
-module.exports = moviesController;
+export default moviesController;

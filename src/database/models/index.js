@@ -1,40 +1,48 @@
-"use strict";
-
-const fs = require("fs");
-const path = require("path");
-const Sequelize = require("sequelize");
+import fs from "fs";
+import path from "path";
+import Sequelize from "sequelize";
+import { __dirname, __filename } from "../../util/dirname.js";
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/config.js")[env];
+import config from "../config/config.js";
 const db = {};
-
+console.log("__dirname", __dirname);
 let sequelize;
-if (config.use_env_variable) {
+if (config[env].use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  console.log("HEEEEEEYYYYYY");
-  sequelize = new Sequelize(config.database, config.username, config.password, {
-    ...config,
-    port: 3307,
-  });
+  sequelize = new Sequelize(
+    config[env].database,
+    config[env].username,
+    config[env].password,
+    {
+      ...config[env],
+      port: 3307,
+    }
+  );
 }
 
-fs.readdirSync(__dirname)
+let promises = fs
+  .readdirSync(__dirname + "database/models")
   .filter((file) => {
     return (
       file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js"
     );
   })
-  .forEach((file) => {
-    const model = require(path.join(__dirname, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
-    db[model.name] = model;
+  .map(async (file) => {
+    const fnModel = file !== "index.js" ? await import(`./${file}`) : null;
+    if (fnModel) {
+      const model = fnModel.default(sequelize, Sequelize.DataTypes);
+      db[model.name] = model;
+      return model;
+    }
   });
 
-Object.keys(db).forEach((modelName) => {
+await Promise.all(promises);
+
+Object.keys(db).forEach(function (modelName) {
   if (db[modelName].associate) {
+    console.log("NOOOOOOOO", db[modelName]);
     db[modelName].associate(db);
   }
 });
@@ -42,4 +50,4 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
+export default db;

@@ -1,4 +1,4 @@
-const db = require("../database/models");
+import db from "../database/models/index.js";
 
 const genresController = {
   list: async (req, res) => {
@@ -11,4 +11,4 @@ const genresController = {
   },
 };
 
-module.exports = genresController;
+export default genresController;
