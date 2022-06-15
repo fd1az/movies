@@ -79,7 +79,7 @@ window.onload = function () {
       }
     } else {
       alert("Tamo chelo");
-      form.submit();
+      // form.submit(); -----> no es necesario
     }
   });
 };
