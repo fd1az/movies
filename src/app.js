@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { __dirname, __filename } from "./util/dirname.js";
 import indexRouter from "./routes/index.js";
+import cors from "cors";
 
 import moviesRoutes from "./routes/moviesRoutes.js";
 import genresRoutes from "./routes/genresRoutes.js";
@@ -11,6 +12,8 @@ import apiMoviesRouter from "./routes/api/movies.js";
 
 const app = express();
 
+//set cors
+app.use(cors());
 // view engine setup
 app.set("views", path.resolve(__dirname, "./views"));
 app.set("view engine", "ejs");

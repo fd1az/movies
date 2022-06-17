@@ -23,6 +23,7 @@ window.onload = function () {
     let length = document.querySelector("#length");
     let genre_id = document.querySelector("#genre_id");
     let ulErrors = document.querySelector(".errores");
+
     if (title.value == "") {
       errors.push("El titulo no puede estar vacío");
       title.classList.add("is-invalid");
